@@ -25,3 +25,17 @@ The genotype effects consist of the effect for each locus, which is drawn from a
 distribution for each locus and the genetic standard deviation of that trait which is the
 standard deviation for each trait normalised by the allele frequency.
 }
+\examples{
+f <- runif(1000, 0.05, 0.5)
+pleio <- generate_bio_pleiotrophy_effects(1:1000, f, 0.4, env_var = c(1,1))
+plot(pleio$effects_A$effects, pleio$effects_B$effects, xlab="Effect of locus on trait A", ylab="Effect of locus on trait B")
+cor(pleio$effects_A$effects, pleio$effects_B$effects)
+g <- sample_initial_genotypes(1000, f)
+## generate phenotypes from the model
+phenoA <- calculate_phenotype(pleio$effects_A, g)
+phenoB <- calculate_phenotype(pleio$effects_B, g)
+## correlation between phenotypes
+cor(phenoA$pheno, phenoB$pheno)
+## correlation between additive genetic effects
+cor(phenoA$additive_genetic, phenoB$additive_genetic)
+}

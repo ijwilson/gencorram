@@ -54,7 +54,7 @@ generate_effects <- function(loci, allele_freq, env_var) {
 #' a vector of length 2.
 #' @return A a list with effects_A and effects_B
 #' @export
-#' @example 
+#' @examples 
 #' f <- runif(1000, 0.05, 0.5)
 #' pleio <- generate_bio_pleiotrophy_effects(1:1000, f, 0.4, env_var = c(1,1))
 #' plot(pleio$effects_A$effects, pleio$effects_B$effects, xlab="Effect of locus on trait A", ylab="Effect of locus on trait B")

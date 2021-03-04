@@ -32,8 +32,8 @@ plot(pleio$effects_A$effects, pleio$effects_B$effects, xlab="Effect of locus on 
 cor(pleio$effects_A$effects, pleio$effects_B$effects)
 g <- sample_initial_genotypes(1000, f)
 ## generate phenotypes from the model
-phenoA <- calculate_phenotype(pleio$effects_A, g)
-phenoB <- calculate_phenotype(pleio$effects_B, g)
+phenoA <- generate_phenotype(pleio$effects_A, g)
+phenoB <- generate_phenotype(pleio$effects_B, g)
 ## correlation between phenotypes
 cor(phenoA$pheno, phenoB$pheno)
 ## correlation between additive genetic effects

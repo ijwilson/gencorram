@@ -2,10 +2,10 @@
 
 export(QT_assortative_mating_report)
 export(assort_mating)
-export(calculate_phenotype)
 export(generate_QT_assortative_mating)
 export(generate_bio_pleiotrophy_effects)
 export(generate_effects)
+export(generate_phenotype)
 export(generation)
 export(init)
 export(make_a_gamete)

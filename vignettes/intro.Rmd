@@ -94,10 +94,10 @@ ggplot(data.frame(effects=effects_A$effects), aes(x=effects)) + geom_histogram(b
 Now get the phenotypes for trait A and trait B.  
 
 ```{r pheno_plot1}
-pheno_females_A <- calculate_phenotype(eff = effects_A, genotype = females)
-pheno_females_B <- calculate_phenotype(eff = effects_B, genotype = females)
-pheno_males_A <- calculate_phenotype(eff = effects_A, genotype = males)
-pheno_males_B <- calculate_phenotype(eff = effects_B, genotype = males)
+pheno_females_A <- generate_phenotype(eff = effects_A, genotype = females)
+pheno_females_B <- generate_phenotype(eff = effects_B, genotype = females)
+pheno_males_A <- generate_phenotype(eff = effects_A, genotype = males)
+pheno_males_B <- generate_phenotype(eff = effects_B, genotype = males)
 pheno_A = rbind(cbind(pheno_females_A, sex="female"), cbind(pheno_males_A, sex="males"))
 ggplot(pheno_A, aes(x=pheno, y=additive_genetic, col=sex)) + geom_point(alpha=0.2)
 ```
@@ -114,8 +114,8 @@ one child for each.  This reduces the effect of genetic drift but is useful as a
 dad_gamete <- apply(males, 2, make_a_gamete)
 mum_gamete <- apply(females, 2, make_a_gamete)
 child <- dad_gamete + mum_gamete
-child_pheno_A <- calculate_phenotype(eff = effects_A, genotype = child)
-child_pheno_B <- calculate_phenotype(eff = effects_B, genotype = child)
+child_pheno_A <- generate_phenotype(eff = effects_A, genotype = child)
+child_pheno_B <- generate_phenotype(eff = effects_B, genotype = child)
 ```
 
 Look at the parental midpoint against the child phenotype

@@ -61,8 +61,8 @@ generate_effects <- function(loci, allele_freq, env_var) {
 #' cor(pleio$effects_A$effects, pleio$effects_B$effects)
 #' g <- sample_initial_genotypes(1000, f)
 #' ## generate phenotypes from the model
-#' phenoA <- calculate_phenotype(pleio$effects_A, g)
-#' phenoB <- calculate_phenotype(pleio$effects_B, g)
+#' phenoA <- generate_phenotype(pleio$effects_A, g)
+#' phenoB <- generate_phenotype(pleio$effects_B, g)
 #' ## correlation between phenotypes
 #' cor(phenoA$pheno, phenoB$pheno)
 #' ## correlation between additive genetic effects
@@ -101,7 +101,7 @@ generate_bio_pleiotrophy_effects <- function(loci, allele_freq, corr_coeff, env_
 #' @export
 #' @return A data frame with the phenotype and additive genetic variance.
 #'
-calculate_phenotype <-  function(eff, genotype) {
+generate_phenotype <-  function(eff, genotype) {
   additive_genetic <- colSums(genotype[eff$loci, ] * eff$effects)
 
   additive_genetic <- additive_genetic / eff$gen_sd
@@ -151,8 +151,8 @@ next_generation <- function(mother_genotypes, father_genotypes) {
 generation <- function(g, effects_A, effects_B, corr_coeff) {
   nmales <- ncol(g$male_genotype)
   nfemales <- ncol(g$female_genotype)
-  female_phenotype <- calculate_phenotype(effects_A, g$female_genotype)
-  male_phenotype <-   calculate_phenotype(effects_B, g$male_genotype)
+  female_phenotype <- generate_phenotype(effects_A, g$female_genotype)
+  male_phenotype <-   generate_phenotype(effects_B, g$male_genotype)
 
   # Now select the dads.  This is assuming female mate choice (I believe)
   parents_selected <- assort_mating(nmales+nfemales,
@@ -185,8 +185,8 @@ sexual_reproduction <- function(nchildren, g, effects_A, effects_B, corr_coeff) 
   nmales <- ncol(g$male_genotype)
   nfemales <- ncol(g$female_genotype)
   nloci <- nrow(g$male_genotype)
-  female_phenotype <- calculate_phenotype(effects_A, g$female_genotype)
-  male_phenotype <-   calculate_phenotype(effects_B, g$male_genotype)
+  female_phenotype <- generate_phenotype(effects_A, g$female_genotype)
+  male_phenotype <-   generate_phenotype(effects_B, g$male_genotype)
   
   # Now select the dads.  This is assuming female mate choice (I believe)
   parents_selected <- assort_mating(nchildren,

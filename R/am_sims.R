@@ -36,8 +36,8 @@ generate_QT_assortative_mating <- function(
   g <- init(population_size, loci_A, loci_B, environ_var, n_loci, allele_freq)
 
   ## Get the female and male phenotypes in the initial generation
-  female_phenotype <- calculate_phenotype(g$effects_A, g$female_genotype)
-  male_phenotype <-   calculate_phenotype(g$effects_B, g$male_genotype)
+  female_phenotype <- generate_phenotype(g$effects_A, g$female_genotype)
+  male_phenotype <-   generate_phenotype(g$effects_B, g$male_genotype)
 
   # Now select the mums and dads.  This is assuming female mate choice (I believe)
   parents <- assort_mating(2*population_size, female_phenotype$pheno,
@@ -162,9 +162,9 @@ QT_assortative_mating_report <- function(population_size,
       "\n")
 
   childs_phenotype_A <-
-    calculate_phenotype(eff = g$effects_A, child_genotype)
+    generate_phenotype(eff = g$effects_A, child_genotype)
   childs_phenotype_B <-
-    calculate_phenotype(eff = g$effect_B, child_genotype)
+    generate_phenotype(eff = g$effect_B, child_genotype)
 
   tmp1 <- (apply(child_genotype[loci_A, ], 1, function(test.geno) {
     summary(lm(childs_phenotype_A[, 1] ~ test.geno))$coeff[2, ]
@@ -245,8 +245,8 @@ simulate_gen_assoc <- function(
   effects_A <- generate_effects(trait_loci_A, allele_freq, env_var = envir_var[1])
   effects_B <- generate_effects(trait_loci_B, allele_freq, env_var = envir_var[2])
   # and phenotypes for training
-  training_pheno_A <- calculate_phenotype(effects_A, training)$pheno
-  training_pheno_B <- calculate_phenotype(effects_B, training)$pheno
+  training_pheno_A <- generate_phenotype(effects_A, training)$pheno
+  training_pheno_B <- generate_phenotype(effects_B, training)$pheno
   # this is an example estimated by doing a bigger analysis that takes a long time
   fitted_lambda <- 0.02310998
   lasso_model_A <-  glmnet::glmnet(t(training), training_pheno_A, alpha = 1, lambda = fitted_lambda)
@@ -258,9 +258,9 @@ simulate_gen_assoc <- function(
   # This one is more complicated as it collects all standard deviation and all correlations named
   summarise_phenotypes3 <- function(gg, effects_A, effects_B, lasso_model_A, lasso_model_B) {
     ga <- cbind(gg$male_genotype, gg$female_genotype)
-    A <- setNames(calculate_phenotype(effects_A, ga), c("phenoA", "addgenA"))
+    A <- setNames(generate_phenotype(effects_A, ga), c("phenoA", "addgenA"))
     lasso_A <- predict(lasso_model_A, t(ga))
-    B  <- setNames(calculate_phenotype(effects_B, ga), c("phenoB", "addgenB"))
+    B  <- setNames(generate_phenotype(effects_B, ga), c("phenoB", "addgenB"))
     lasso_B <- predict(lasso_model_B, t(ga))
     cr <- cor(cbind(A, lassoA=lasso_A[, 1], B, lassoB=lasso_B[,1]))
     v <- var(cbind(A, lassoA=lasso_A[, 1], B, lassoB=lasso_B[,1]))
@@ -323,9 +323,9 @@ simulate_gen_assoc_recalc_PGS <- function(
   # This one is more complicated as it collects all standard deviation and all correlations named
   summarise_phenotypes5 <- function(gg, effects_A, effects_B, lasso_model_A, lasso_model_B, lasso_model_A2=NULL, lasso_model_B2=NULL) {
     ga <- cbind(gg$male_genotype, gg$female_genotype)
-    A <- setNames(calculate_phenotype(effects_A, ga), c("phenoA", "addgenA"))
+    A <- setNames(generate_phenotype(effects_A, ga), c("phenoA", "addgenA"))
     lasso_A <- predict(lasso_model_A, t(ga))[, 1]
-    B  <- setNames(calculate_phenotype(effects_B, ga), c("phenoB", "addgenB"))
+    B  <- setNames(generate_phenotype(effects_B, ga), c("phenoB", "addgenB"))
     lasso_B <- predict(lasso_model_B, t(ga))[, 1]
     
     if (!is.null(lasso_model_A2))
@@ -361,8 +361,8 @@ simulate_gen_assoc_recalc_PGS <- function(
   effects_A <- generate_effects(trait_loci_A, allele_freq, env_var = envir_var[1])
   effects_B <- generate_effects(trait_loci_B, allele_freq, env_var = envir_var[2])
   # and phenotypes for training
-  training_pheno_A <- calculate_phenotype(effects_A, training)$pheno
-  training_pheno_B <- calculate_phenotype(effects_B, training)$pheno
+  training_pheno_A <- generate_phenotype(effects_A, training)$pheno
+  training_pheno_B <- generate_phenotype(effects_B, training)$pheno
   # this is an example estimated by doing a bigger analysis that takes a long time
   fitted_lambda <- 0.02310998
   lasso_model_A <-  glmnet::glmnet(t(training), training_pheno_A, alpha = 1, lambda = fitted_lambda)
@@ -386,8 +386,8 @@ simulate_gen_assoc_recalc_PGS <- function(
   }
   
   training2 <- cbind(gn$male_genotype, gn$female_genotype)
-  training_pheno_A2 <- calculate_phenotype(effects_A, training2)$pheno
-  training_pheno_B2 <- calculate_phenotype(effects_B, training2)$pheno
+  training_pheno_A2 <- generate_phenotype(effects_A, training2)$pheno
+  training_pheno_B2 <- generate_phenotype(effects_B, training2)$pheno
   
   lasso_model_A2 <-  glmnet::glmnet(t(training2), training_pheno_A2, alpha = 1, lambda = fitted_lambda)
   lasso_model_B2 <-  glmnet::glmnet(t(training2), training_pheno_B2, alpha = 1, lambda = fitted_lambda)

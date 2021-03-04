@@ -1,0 +1,18 @@
+Package: gencorram
+Type: Package
+Title: Simulate Genetic Correlations by Associative Mating
+Version: 0.1.3
+Author: Ian Wilson
+Maintainer: The package maintainer <yourself@somewhere.net>
+Description: Simulation of Genetic Correlation of phenotypes caused by Associative Mating
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.1
+Imports:  
+    mvtnorm,
+    glmnet
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

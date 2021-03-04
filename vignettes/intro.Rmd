@@ -1,0 +1,133 @@
+---
+title: "First Steps with Simulation"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{intro}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Introduction
+
+The first thing we do is to load the library.  For now we don't require any other libraries.
+
+```{r setup}
+library(gencorram)
+library(pander)
+library(ggplot2)
+```
+
+The main aim of this library is to simulation from associative matings.  To thing about this 
+I have written the code to be able to simulate a pair of genetic traits,  Trait A and trait B (we may not be interested
+in both of these for anything).  These traits are influenced by a number of genetic loci (all unlinked for now)
+
+### Parameters
+
+Name            | explanation 
+----------------|------------
+population_size | The size of population to simulate.  Here the size is the number of males (and females) so the actual population is double this
+loci_A          | The set of loci that contribute to trait A, so example 1:20 means the first 20 loci
+loci_B          | The set of loci that contribute to trait B
+environ_var     | the environmental variance for both traits
+allele_freq     | The Allele frequencies at the trait (and any other) loci
+*corr_coeff*    | The correlation coefficient between trait A in females and trait B in males.  This is the associative mating
+
+There are more things that we can do with the allele frequency of variants at these trait loci 
+but ignore this for now.
+
+### Generating genetic effects
+
+The way that phenotypes are determined is to give an effect size (we use a random normal variable with mean 0 and variance 1) 
+for each locus that effects the trait.
+
+
+### Determining the phenotype
+
+
+
+### Simulate Starting Genotypes
+
+We start with a small number of loci, so that we can see them easily
+
+```{r start}
+allele_freq <- rep(0.5, 10)  ## 20 loci
+females <- sample_initial_genotypes(12, allele_freq) # 12 individuals
+rownames(females) <- paste("L", 1:10, sep="")
+colnames(females) <- paste("ind", 1:12, sep="_")
+pander::pander(females, split.table=Inf)
+```
+
+The representation for the genotype of a set of individuals is rows with the genotype at a 
+loci and columns of individuals.  The value (0, 1 or 2) is the allele count of the variant allele at this locus.
+
+To get smoother eastimate we do a first simulation with 200 loci and 1000 males and females
+
+```{r male_genotypes}
+allele_freq <- rep(0.5, 200)  ## 200 loci
+females <- sample_initial_genotypes(1000, allele_freq)
+males <- sample_initial_genotypes(1000, allele_freq)
+```
+
+Now get some effect sizes.  We use the first 100 loci for the first trait and the second 100 for the second trait.  An environmental 
+variance of 1.0 should ensure a heritability of 0.5.
+
+```{r}
+effects_A <- generate_effects(loci = 1:100, allele_freq, env_var = 1.0 )
+effects_B <- generate_effects(loci = 101:200, allele_freq, env_var = 1.0 )
+```
+
+These effects consist of 3 parts, the locus, the effect size and the genetic standard deviation, which is used to normalise the 
+genetic effect so that it is not dependent on the allele frequencies (a large effect on a locus with a rare variant could 
+have less of an effect that a small effect on a locus with a frequent variant, so this is corrected).
+
+
+```{r hist_effects}
+ggplot(data.frame(effects=effects_A$effects), aes(x=effects)) + geom_histogram(binwidth=0.25, fill="blue", col="white") + ggtitle("Effect size per locus for trait A")
+```
+
+Now get the phenotypes for trait A and trait B.  
+
+```{r pheno_plot1}
+pheno_females_A <- calculate_phenotype(eff = effects_A, genotype = females)
+pheno_females_B <- calculate_phenotype(eff = effects_B, genotype = females)
+pheno_males_A <- calculate_phenotype(eff = effects_A, genotype = males)
+pheno_males_B <- calculate_phenotype(eff = effects_B, genotype = males)
+pheno_A = rbind(cbind(pheno_females_A, sex="female"), cbind(pheno_males_A, sex="males"))
+ggplot(pheno_A, aes(x=pheno, y=additive_genetic, col=sex)) + geom_point(alpha=0.2)
+```
+
+Plots for trait B would be similar.
+
+## Offspring
+
+Now get some children.  We shall just do something really simple and match male 1 to female 1 and so on, and get 
+one child for each.  This reduces the effect of genetic drift but is useful as an illustration.
+
+
+```{r offspring}
+dad_gamete <- apply(males, 2, make_a_gamete)
+mum_gamete <- apply(females, 2, make_a_gamete)
+child <- dad_gamete + mum_gamete
+child_pheno_A <- calculate_phenotype(eff = effects_A, genotype = child)
+child_pheno_B <- calculate_phenotype(eff = effects_B, genotype = child)
+```
+
+Look at the parental midpoint against the child phenotype
+
+```{r heritability, message=FALSE}
+dat <- data.frame(midpoint_A = 0.5*(pheno_females_A$pheno+pheno_males_A$pheno), child_A=child_pheno_A$pheno)
+ggplot(dat, aes(x=midpoint_A, y=child_A)) + geom_point() + geom_smooth(method="lm")
+lm(child_A ~  midpoint_A, data=dat )    
+```
+
+The slope of about 0.5 indicates a heritability of 0.5.  This is correct as we have created traits with an
+additive genetic variance of 1 and an environmental variance of 1.
+
+You would get the same sort of results for trait B.

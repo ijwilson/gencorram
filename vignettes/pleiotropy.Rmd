@@ -1,0 +1,146 @@
+---
+title: "Pleiotropy"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Pleiotropy}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE, message=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+library(gencorram)
+library(ggplot2)
+```
+
+
+## Relevant R Libraries
+
+### Phenotype Simulations
+
+[Phenotype Simulator](https://cran.r-project.org/web/packages/PhenotypeSimulator/)  
+[SimPhe](https://cran.r-project.org/web/packages/SimPhe/)  
+[simplePhenotypes](https://github.com/samuelbfernandes/simplePHENOTYPES)
+
+### Genetic Risk Scores
+
+https://cran.r-project.org/web/packages/PredictABEL/
+
+## Biological Pleiotropy
+
+Quotation from the blog.
+
+> In this situation, genetic variants that influence one trait also influence another 
+> because of some shared underlying biology. For example, genetic variants that influence 
+> age at menarche in women have correlated effects on male pattern baldness. Presumably 
+> this is because there are some shared hormonal pathways that influence both of these 
+> traits, such that altering these pathways has effects on multiple traits.
+
+Genetic correlations ($r_g$) are calculated from the additive
+genetic variance and covariance between traits, as shown for
+traits $X$ and $Y$,
+
+$r_g = cov_g(X,Y)/\sqrt(V_{gX} V_{gY}$
+
+or for standardized traits where the phenotypic variances are one, 
+$r_g = cov_g(X,Y)/\sqrt{h^2_X h^2_Y}$
+
+where $h^2_X$ and $h^2_Y$ are the heritability estimates of the
+two traits and $V_{gX}$ and $V_{gY}$ are the variances of the traits.
+
+Shared variants does not make genetic correlations.  Here I simulate 
+a from two traits with shared loci but effects that are independent.  
+
+
+```{r}
+allele_freq <- rep(0.5, 1000)                          ## 2000 loci
+
+effects_A <- generate_effects(1:1000, allele_freq, env_var = 1.0)   
+effects_B <- generate_effects(1:1000, allele_freq, env_var = 1.0)
+
+sample <- sample_initial_genotypes(2000, allele_freq)  ## 2000 individuals
+phenotype_A <- calculate_phenotype(effects_A, sample)
+phenotype_B <- calculate_phenotype(effects_B, sample)
+
+phenotype <- cbind(phenotype_A, phenotype_B)
+colnames(phenotype) <- c("pheno_A", "add_gen_A", "pheno_B", "add_gen_B")
+```
+
+Phenotype A  and phenotype B are not correlated.
+
+```{r}
+ggplot(phenotype, aes(x=pheno_A, y=pheno_B)) + geom_point() + geom_smooth(method="lm")
+pander::pander(cor(phenotype))
+```
+
+We generate biological pleiotrophy by making the effects from loci correlated.  The command 
+`generate_bio_pleiotrophy_effects` gives the correlated effects for a set of loci.
+
+```{r}
+bp_eff <- generate_bio_pleiotrophy_effects(1:1000, allele_freq, corr_coeff = 0.5, env_var=c(1,1))
+ggplot(data.frame(eff_A=bp_eff$effects_A$effects, eff_B=bp_eff$effects_B$effects), aes(x=eff_A, y=eff_B)) + geom_point()
+```
+
+We can then use these correlated effects to generated correlated phenotypes
+
+```{r}
+g <- sample_initial_genotypes(5000, allele_freq)
+dat <- cbind(calculate_phenotype(bp_eff$effects_A, g), 
+             calculate_phenotype(bp_eff$effects_B, g))
+colnames(dat) <- c("phenotype_A", "add_gen_A", "phenotype_B", "add_gen_B")
+ggplot(dat, aes(x=phenotype_A, y=phenotype_B)) + geom_point(alpha=0.2) + geom_smooth(method="lm")
+```
+
+
+## Heritability and Genetic Correlation
+
+### Heritability
+
+The heritability of a trait is the proportion of phenotypic variance that 
+can be attributable to additive genetic factors.
+
+$$
+h_{g_x}^2 = \frac{\sigma^2_{g_x}}{\sigma^2_x}
+$$
+
+For these data we have phenotypes A and B.
+
+phenotype | $\sigma_x$ | $\sigma_{g_x}$ | $h^2$
+----------|------------|----------------|------
+A         | `r round(sd(dat$phenotype_A), 2)`| `r round(sd(dat$add_gen_A), 2)` | `r round(var(dat$add_gen_A)/var(dat$phenotype_A), 2)`
+B         |`r round(sd(dat$phenotype_B), 2)`| `r round(sd(dat$add_gen_B), 2)` | `r round(var(dat$add_gen_B)/var(dat$phenotype_B), 2)`
+
+
+### Genetic Correlation
+
+The genetic correlation is defined to be 
+
+$$
+\frac{\sigma_{g_x g_y}}{\sqrt{\sigma^2_{g_x} \sigma^2_{g_y}}}
+$$
+
+So in the traits above this is the correlation of the additive genetic variances (the values should already be scaled).  This is `r round(cor(dat$add_gen_A, dat$add_gen_B), 2)` calculated from our
+phenotypes.  This should be very close as we know the genetic contribution to the 
+phenotypic genetic variation exactly for these individuals.
+
+Note, there is a slight wrinkle here.  The heritability can be very small for both traits, 
+yet the genetic correlation high.  Hence both $r_g$ and $h^2$ should be reported for traits.
+
+## Simulation
+
+### Associative mating on one trait
+
+How does associative mating on one trait effect the other trait?
+
+
+
+
+
+
+
+
+
+

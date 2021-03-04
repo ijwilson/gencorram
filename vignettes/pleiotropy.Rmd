@@ -31,22 +31,20 @@ https://cran.r-project.org/web/packages/PredictABEL/
 
 ## Biological Pleiotropy
 
-Quotation from the blog.
-
-> In this situation, genetic variants that influence one trait also influence another 
-> because of some shared underlying biology. For example, genetic variants that influence 
-> age at menarche in women have correlated effects on male pattern baldness. Presumably 
-> this is because there are some shared hormonal pathways that influence both of these 
-> traits, such that altering these pathways has effects on multiple traits.
+Biological pleiotropy when genetic variants that influence one trait also influence another 
+because of some shared underlying biology. For example, genetic variants that influence 
+age at menarche in women have correlated effects on male pattern baldness. Presumably 
+this is because there are some shared hormonal pathways that influence both of these 
+traits, and altering these pathways has effects on multiple traits.
 
 Genetic correlations ($r_g$) are calculated from the additive
 genetic variance and covariance between traits, as shown for
 traits $X$ and $Y$,
 
-$r_g = cov_g(X,Y)/\sqrt(V_{gX} V_{gY}$
+$r_g = \frac{cov_g(X,Y)}{\sqrt{V_{gX} V_{gY}}}$
 
 or for standardized traits where the phenotypic variances are one, 
-$r_g = cov_g(X,Y)/\sqrt{h^2_X h^2_Y}$
+$r_g = \frac{cov_g(X,Y)}{\sqrt{h^2_X h^2_Y}}$
 
 where $h^2_X$ and $h^2_Y$ are the heritability estimates of the
 two traits and $V_{gX}$ and $V_{gY}$ are the variances of the traits.
@@ -55,7 +53,7 @@ Shared variants does not make genetic correlations.  Here I simulate
 a from two traits with shared loci but effects that are independent.  
 
 
-```{r}
+```{r simulation_1}
 allele_freq <- rep(0.5, 1000)                          ## 2000 loci
 
 effects_A <- generate_effects(1:1000, allele_freq, env_var = 1.0)   
@@ -71,12 +69,12 @@ colnames(phenotype) <- c("pheno_A", "add_gen_A", "pheno_B", "add_gen_B")
 
 Phenotype A  and phenotype B are not correlated.
 
-```{r}
+```{r plot_phenotypes}
 ggplot(phenotype, aes(x=pheno_A, y=pheno_B)) + geom_point() + geom_smooth(method="lm")
 pander::pander(cor(phenotype))
 ```
 
-We generate biological pleiotrophy by making the effects from loci correlated.  The command 
+We generate biological pleiotropy by making the effects from loci correlated.  The command 
 `generate_bio_pleiotrophy_effects` gives the correlated effects for a set of loci.
 
 ```{r}

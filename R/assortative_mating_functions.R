@@ -12,8 +12,8 @@
 #' d <- rowMeans(b)/2
 #' plot(allele_freq, d)
 #'
-sample_initial_genotypes <- function(Num_inds, allele_freq) {
-  replicate(Num_inds,
+sample_initial_genotypes <- function(num_inds, allele_freq) {
+  replicate(num_inds,
             rbinom(length(allele_freq), 2, allele_freq)
             )
 }
@@ -24,9 +24,10 @@ sample_initial_genotypes <- function(Num_inds, allele_freq) {
 #' distribution for each locus and the  genetic standard deviation of that trait which is the
 #' standard deviation for each trait normalised by the allele frequency.
 #'
-#' @param loci A vector with the loci affecting the trait
+#' @param loci A vector with the loci affecting the trait.
 #' @param allele_freq The allele frequency of sampled loci.
 #' A vector at least as long as max loci specified.
+#' @param env_var The environmental variance for the trait.
 #' @return A list with elements of the effect and the genetic standard deviation on the trait of class effects
 #' @export
 generate_effects <- function(loci, allele_freq, env_var) {
@@ -49,8 +50,24 @@ generate_effects <- function(loci, allele_freq, env_var) {
 #' @param allele_freq The allele frequency of sampled loci.
 #' A vector at least as long as max loci specified.
 #' @param corr_coeff The correlation coefficient between traits
+#' @param env_var The environmental variance.  Either one value shared by both traits or
+#' a vector of length 2.
 #' @return A a list with effects_A and effects_B
 #' @export
+#' @example 
+#' f <- runif(1000, 0.05, 0.5)
+#' pleio <- generate_bio_pleiotrophy_effects(1:1000, f, 0.4, env_var = c(1,1))
+#' plot(pleio$effects_A$effects, pleio$effects_B$effects, xlab="Effect of locus on trait A", ylab="Effect of locus on trait B")
+#' cor(pleio$effects_A$effects, pleio$effects_B$effects)
+#' g <- sample_initial_genotypes(1000, f)
+#' ## generate phenotypes from the model
+#' phenoA <- calculate_phenotype(pleio$effects_A, g)
+#' phenoB <- calculate_phenotype(pleio$effects_B, g)
+#' ## correlation between phenotypes
+#' cor(phenoA$pheno, phenoB$pheno)
+#' ## correlation between additive genetic effects
+#' cor(phenoA$additive_genetic, phenoB$additive_genetic)
+
 generate_bio_pleiotrophy_effects <- function(loci, allele_freq, corr_coeff, env_var) {
   if (length(env_var) == 1)
     env_var <- c(env_var, env_var)

@@ -16,11 +16,10 @@ knitr::opts_chunk$set(
 
 ## Introduction
 
-The first thing we do is to load the library.  For now we don't require any other libraries.
+The first thing we do is to load the library.  
 
 ```{r setup}
 library(gencorram)
-library(pander)
 library(ggplot2)
 ```
 

@@ -210,62 +210,6 @@ sexual_reproduction <- function(nchildren, g, effects_A, effects_B, corr_coeff) 
   list(female_genotype=child_genotype[,1:nfemales],
        male_genotype = child_genotype[, (nfemales+1):(nmales+nfemales)])
 }
-
-
-#' Initialise the genotypes and effects and get a set of male and female genotypes
-#'
-#' @param population_size The size of the population to simulate
-#' @param loci_A Loci affecting trait A only
-#' @param loci_B Loci affecting trait B only
-#' @param loci_AB Loci affecting traits A and B
-#' @param corr_coefficient Genetic correlation between traits A and B based on shared loci 
-#' @export
-#'
-init <- function(population_size,
-                       loci_A,       # loci affecting trait A only
-                       loci_B,       # loci affecting trait B only
-                    corr_coeff,
-                       environ_var = c(1,1),  # environmental variance
-                       n_loci,
-                       allele_freq = 0.5) {
-  # Need to check the loci selected.
-  if (missing(n_loci)) {
-    if (length(allele_freq) > 1) {
-      n_loci <- length(allele_freq)
-      if (max(loci_A) > n_loci | max(loci_B) > n_loci)
-        stop("if you set allele_freq then it must be long enough to include loci for traits A and B")
-    } else {
-      n_loci <- max(c(loci_A, loci_B))
-    }
-  } else {
-    if (max(loci_A) > n_loci | max(loci_B) > n_loci)
-      stop("loci for traits A and B must be in the range 1:n_loci")
-  }
-
-  if (length(allele_freq) == 1) {
-    allele_freq <- rep(allele_freq, n_loci)   ## Start all alleles at frequency 0.5
-  } else {
-    if (n_loci != length(allele_freq))
-      stop("allele freq must have length 1 or the same length as n_loci")
-  }
-
-
-  ## Make the parental generation
-  female_genotype <-  sample_initial_genotypes(population_size, allele_freq)
-  male_genotype   <-  sample_initial_genotypes(population_size, allele_freq)
-  ## generate a set of genetic effects
-  effects_A <- generate_effects(loci_A, allele_freq, environ_var) ## generate effect sizes for two different traits
-  effects_B <- generate_effects(loci_B, allele_freq, environ_var) ## generate effect sizes for two different traits
-  ## Get the female and male phenotypes in the initial generation
-
-  list(
-    male_genotype=male_genotype,
-    female_genotype=female_genotype,
-    effects_A=effects_A, 
-    effects_B=effects_B
-    )
-}
-
 #' Generate the pairs selected by mothers
 #'
 #' @param pop_size The number of pairs to generate.

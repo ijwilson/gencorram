@@ -13,9 +13,11 @@
 #' plot(allele_freq, d)
 #'
 sample_initial_genotypes <- function(num_inds, allele_freq) {
-  replicate(num_inds,
+  r <- replicate(num_inds,
             rbinom(length(allele_freq), 2, allele_freq)
             )
+  class(r) <- "genotypeMatrix"
+  return(r)
 }
 #'
 #' Get the genotype effects for each locus for two traits.
@@ -34,8 +36,8 @@ generate_effects <- function(loci, allele_freq, env_var) {
   effects <- rnorm(length(loci))
   genetic_sd <- sqrt(sum((effects^2) * 2 * allele_freq[loci] * (1 - allele_freq[loci])))
   ee <- list(
-    loci=loci, effects = effects, gen_sd = genetic_sd, environ_var=env_var
-    )
+      loci=loci, effects = effects, gen_sd = genetic_sd, environ_var=env_var
+  )
   class(ee) <- "effects"
   return(ee)
 }
@@ -108,7 +110,9 @@ generate_phenotype <-  function(eff, genotype) {
   pheno <- additive_genetic +
     rnorm(length(additive_genetic), mean = 0.0, sd = sqrt(eff$environ_var))
   pheno <- scale(pheno, scale = FALSE) - mean(pheno)   # centre
-  return(data.frame(pheno = pheno, additive_genetic = additive_genetic))
+  d <- data.frame(pheno = pheno, additive_genetic = additive_genetic)
+  class(d) <- "phenotype"
+  return(d)
 }
 
 #' Generate a gamete based on the parental genotype
@@ -135,7 +139,9 @@ make_a_gamete <- function(parental_genotype) {
 next_generation <- function(mother_genotypes, father_genotypes) {
   dad_gamete <- apply(father_genotypes, 2, make_a_gamete)
   mum_gamete <- apply(mother_genotypes, 2, make_a_gamete)
-  return(dad_gamete + mum_gamete)
+  gen <- dad_gamete + mum_gamete
+  class(gen) <- "genotype"
+  return(gen)
 }
 #'
 #' Get the next generation of Genotypes
@@ -235,8 +241,19 @@ assort_mating <-   function(popsize,
                     fathers_index=om[1+floor(pp[,2]*n_males)])
 }
 
-
-
-#' Code rewritten from that on Joe Pickrell blog
+#' Plot a phenotype
 #'
+#' @param phen  the phenotype
+#' @export
+#' @return NULL, run for side effects
+#' @examples
+#' allele_freq <- runif(2000, 0.01, 0.2)
+#' plot(generate_phenotype(eff=generate_effects(1:1000, allele_freq, 1), sample_initial_genotypes(3000, allele_freq)))
+plot.phenotype <- function(phen) {
+  plot(x = phen$additive_genetic, y = phen$pheno, ylab="Phenotype", xlab="Additive Genetic" )
+}
+
+
+# Code rewritten from that on Joe Pickrell blog
+#
 #' https://github.com/joepickrell/rg-post/blob/master/Assortative_mating_sims.R

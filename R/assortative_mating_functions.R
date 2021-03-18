@@ -253,7 +253,19 @@ plot.phenotype <- function(phen) {
   plot(x = phen$additive_genetic, y = phen$pheno, ylab="Phenotype", xlab="Additive Genetic" )
 }
 
+#' Find the heritability for a trait
+#'
+#' @param phen  The Phenotype.  An object of type phenotype
+#' @export
+#' @return the heritability
+#' @examples
+#' allele_freq <- runif(2000, 0.01, 0.2)
+#' heritability(generate_phenotype(eff=generate_effects(1:1000, allele_freq, 1), sample_initial_genotypes(3000, allele_freq)))
+heritability <- function(phen) {
+  return(var(phen$additive_genetic)/var(phen$pheno))
+}
+
 
 # Code rewritten from that on Joe Pickrell blog
 #
-#' https://github.com/joepickrell/rg-post/blob/master/Assortative_mating_sims.R
+# https://github.com/joepickrell/rg-post/blob/master/Assortative_mating_sims.R

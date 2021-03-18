@@ -17,5 +17,5 @@ Plot a phenotype
 }
 \examples{
 allele_freq <- runif(2000, 0.01, 0.2)
-plot(generate_phenotype(eff=generate_effects(1:1000, allele_freq, .2), sample_initial_genotypes(3000, allele_freq)))
+plot(generate_phenotype(eff=generate_effects(1:1000, allele_freq, 1), sample_initial_genotypes(3000, allele_freq)))
 }

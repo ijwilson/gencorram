@@ -3,7 +3,7 @@ Type: Package
 Title: Simulate Genetic Correlations by Associative Mating
 Version: 0.1.4
 Author: Ian Wilson
-Maintainer: The package maintainer <yourself@somewhere.net>
+Maintainer: ian.wilson@newcastle.ac.uk
 Description: Simulation of Genetic Correlation of phenotypes caused by Associative Mating
 License: What license is it under?
 Encoding: UTF-8

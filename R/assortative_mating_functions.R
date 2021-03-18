@@ -252,7 +252,6 @@ assort_mating <-   function(popsize,
 plot.phenotype <- function(phen) {
   plot(x = phen$additive_genetic, y = phen$pheno, ylab="Phenotype", xlab="Additive Genetic" )
 }
-
 #' Find the heritability for a trait
 #'
 #' @param phen  The Phenotype.  An object of type phenotype
